@@ -16,18 +16,34 @@ Replace this paragraph with your own summary of what your version does.
 ---
 
 ## How The System Works
+- What features each `Song` uses in my system:
+  - Genre, mood, energy closeness, acousticness, tempo closeness
+- What information `UserProfile` stores:
+  - Preferred genre, preferred mood, target energy level, acoustic preference
+- How `Recommender` computes a score for each song:
+  - Uses a weighted sum where every feature contributes a value within [0, 1]
+  - Each song is compared to one user profile
+  - Points are given for yes/no matches of categorial attributes (genre match, mood match), while closeness points are given for numeric features(energy, tempo)
+  - For example, if genre is weighted at 0.35 and the genre of the song matches, 1*0.35 would be added to the sum
+- How the system chooses which songs to recommend:
+  - A score for each song is computed by `Recommender` as described above
+  - Sort by descending order to get top recommendations
 
-Explain your design in plain language.
+- Data flow: Input(User Preferences) -> Process (Scoring each song in songs.csv using scoring logic defined above) -> Output (Ranking, the top K recommendations)
+- Finalized Algorithm: 
+| Feature | Weight | How it's measured |
+|---|---|---|
+| Genre match | 0.35 | 1.0 if exact match, else 0 |
+| Mood match | 0.30 | 1.0 if exact match, else 0 |
+| Energy closeness | 0.20 | `1 - abs(user_energy - song_energy)` |
+| Tempo closeness | 0.10 | `1 - abs(user_bpm - song_bpm) / 170` |
+| Acousticness | 0.05 | `1 - abs(user_acousticness - song_acousticness)` |
 
-Some prompts to answer:
+  - After scoring, sort all songs descending by score and return the top k results.
+  - Potential biases: 
+    - The system may over-prioritize genre because it has the highest weight. This may ignore songs matching the user's mood.
+    - There's no penalty for hard mismatches, and since there's no floor or disqualifier, a user could still receive a song that's the opposite of what they want. 
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
-
-You can include a simple diagram or bullet list if helpful.
 
 ---
 

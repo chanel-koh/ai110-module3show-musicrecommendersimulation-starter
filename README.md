@@ -44,7 +44,17 @@ Replace this paragraph with your own summary of what your version does.
     - The system may over-prioritize genre because it has the highest weight. This may ignore songs matching the user's mood.
     - There's no penalty for hard mismatches, and since there's no floor or disqualifier, a user could still receive a song that's the opposite of what they want. 
 
+- Output: 
+![alt text](<Screenshot 2026-04-13 at 10.03.30 PM.png>)
 
+- Stress test with diverse profiles:
+![alt text](<Screenshot 2026-04-13 at 10.29.56 PM.png>)
+
+![alt text](<Screenshot 2026-04-13 at 10.27.58 PM.png>)
+
+![alt text](<Screenshot 2026-04-13 at 10.28.18 PM.png>)
+
+![alt text](<Screenshot 2026-04-13 at 10.28.30 PM.png>)
 ---
 
 ## Getting Started

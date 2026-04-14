@@ -25,21 +25,48 @@ def main() -> None:
         "acousticness": 0.30,
     }
 
-    recommendations = recommend_songs(user_prefs, songs, k=5)
+    # Taste profile: laid-back acoustic folk listener who prefers calm, high-energy songs 
+    # Edge-case profile: calm mood but high energy preference
+    user_prefs_2 = {
+        "genre": "folk",
+        "mood": "calm",
+        "energy": 0.90,
+        "tempo_bpm": 85,
+        "likes_acoustic": True,
+        "acousticness": 0.80,
+    }
+
+    # Taste profile: high-energy pop fan who wants danceable, upbeat tracks
+    user_prefs_3 = {
+        "genre": "pop",
+        "mood": "energetic",
+        "energy": 0.90,
+        "tempo_bpm": 140,
+        "likes_acoustic": False,
+        "acousticness": 0.10,
+    }
 
     width = 52
-    print(f"\n{'Top Recommendations':^{width}}")
-    print("=" * width)
 
-    for rank, (song, score, reasons) in enumerate(recommendations, start=1):
-        print(f"\n  #{rank}  {song['title']}")
-        print(f"       Artist : {song['artist']}")
-        print(f"       Score  : {score:.2f}")
-        print(f"       Why    :")
-        for reason in reasons:
-            print(f"                - {reason}")
+    for label, prefs in [
+        ("Indie Pop Fan", user_prefs),
+        ("Folk Listener", user_prefs_2),
+        ("Pop Fan", user_prefs_3),
+    ]:
+        recommendations = recommend_songs(prefs, songs, k=5)
 
-    print("\n" + "=" * width)
+        print(f"\n{'Top Recommendations for: ' + label:^{width}}")
+        print("=" * width)
+
+        for rank, (song, score, reasons) in enumerate(recommendations, start=1):
+            print(f"\n  #{rank}  {song['title']}")
+            print(f"       Artist : {song['artist']}")
+            print(f"       Score  : {score:.2f}")
+            print(f"       Why    :")
+            for reason in reasons:
+                print(f"                - {reason}")
+
+        print("\n" + "=" * width)
 
 
 if __name__ == "__main__":

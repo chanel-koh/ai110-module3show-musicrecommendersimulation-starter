@@ -2,60 +2,60 @@
 
 ## 1. Model Name  
 
-Give your model a short, descriptive name.  
-Example: **VibeFinder 1.0**  
+**BopFinder 1.0**  
 
 ---
 
 ## 2. Intended Use  
 
-Describe what your recommender is designed to do and who it is for. 
-
-Prompts:  
-
-- What kind of recommendations does it generate  
-- What assumptions does it make about the user  
-- Is this for real users or classroom exploration  
+- What kind of recommendations it generates:
+    - A list of 5 top recommendations a specific user profile is likely to enjoy.
+- What assumptions does it make about the user:  
+    - It assumes that the user only has one favorite genre and that their mood preference stays the same.
+- Is this for real users or classroom exploration:  
+    - Classroom exploration
 
 ---
 
 ## 3. How the Model Works  
 
-Explain your scoring approach in simple language.  
-
-Prompts:  
-
 - What features of each song are used (genre, energy, mood, etc.)  
+    - Genre, mood, energy closeness, acousticness, tempo closeness
 - What user preferences are considered  
+    - Preferred genre, preferred mood, target energy level, acoustic preference
 - How does the model turn those into a score  
-- What changes did you make from the starter logic  
-
-Avoid code here. Pretend you are explaining the idea to a friend who does not program.
+    - Uses a weighted sum where every feature contributes a value within [0, 1]
+    - Each song is compared to one user profile
+    - Points are given for yes/no matches of categorial attributes (genre match, mood match), while closeness points are given for numeric features(energy, tempo)
+    - For example, if genre is weighted at 0.35 and the genre of the song matches, 1*0.35 would be added to the sum
+- What changes did you make from the starter logic
+    - A weighted sum calculation to factor in importance of a feature, closeness scores for continuous features 
 
 ---
 
 ## 4. Data  
-
-Describe the dataset the model uses.  
-
-Prompts:  
-
-- How many songs are in the catalog  
-- What genres or moods are represented  
-- Did you add or remove data  
-- Are there parts of musical taste missing in the dataset  
+- How many songs are in the catalog: 
+    - 18 songs
+- What genres or moods are represented: 
+    - 15 genres (pop, lofi, rock, folk, jazz, indie pop, hip hop, r&b, house, metal, country, reggae, ambient, synthwave, classical) 
+    - 14 moods (happy, chill, intense, focused, relaxed, moody, nostalgic, confident, romantic, euphoric, rebellious, wistful, uplifted, serene)
+- Did you add or remove data: 
+    - No songs were added or removed from the original dataset
+- Are there parts of musical taste missing in the dataset: 
+    - Common mood descriptors like "energetic" and "calm" are absent, and the catalog has no songs for several genre combos a user might prefer (for example, EDM, K-pop)
 
 ---
 
 ## 5. Strengths  
 
-Where does your system seem to work well  
+Where does your system seem to work well.  
 
-Prompts:  
-
-- User types for which it gives reasonable results  
-- Any patterns you think your scoring captures correctly  
-- Cases where the recommendations matched your intuition  
+- User types for which it gives reasonable results: 
+    - Users whose preferred genre and mood exist in the catalog (for example, the Indie Pop Fan) get the most coherent recommendations since the two heaviest features both contribute fully
+- Any patterns you think your scoring captures correctly: 
+    - The weighted sum correctly prioritizes categorical alignment first, then rewards songs that are close in energy and tempo. Therefore, a genre-and-mood match that is also near the target energy reliably floats to the top
+- Cases where the recommendations matched your intuition: 
+    - The Indie Pop Fan's top results were all upbeat indie or pop tracks with moderate energy, exactly what the profile describes
 
 ---
 
@@ -84,9 +84,11 @@ How you checked whether the recommender behaved as expected.
     - **Pop Fan**: high-energy pop fan seeking fast, danceable tracks (0.90 energy, 140 BPM, "energetic" mood) with minimal acousticness (0.10).
 
 - What you looked for in the recommendations  
-    - I checked whether the top-ranked songs actually matched the spirit of each profile — for example, whether the Indie Pop Fan got upbeat indie songs and whether the Pop Fan got high-energy tracks — and whether the score breakdown in the "Why" column explained the ranking in a way that made intuitive sense.
+    - I checked whether the top ranked songs actually matched the spirit of each profile. For example, whether the Indie Pop Fan got upbeat indie songs and whether the Pop Fan got high-energy tracks. Additionally, I checked whether the score points breakdown in the output explained the ranking in a way that made intuitive sense.
+
 - What surprised you  
-    - The Folk Listener's top recommendation ("Golden Hour Letters") surprised me: despite the user wanting very high energy (0.90), the only folk song in the catalog has energy 0.46, so the genre match forced a low-energy song to the top — showing that the genre weight can override continuous feature alignment entirely.
+    - The Folk Listener's top recommendation ("Golden Hour Letters") surprised me: despite the user wanting very high energy (0.90), the only folk song in the catalog has energy 0.46, so the genre match forced a low energy song to the top, showing that the genre weight can override continuous feature alignment entirely.
+
 - Any simple tests or comparisons you ran  
     - I compared the Folk Listener and Pop Fan side-by-side since both have moods not in the catalog; this confirmed that the missing mood label costs exactly 0.30 points per song regardless of how well everything else matches, and the Pop Fan still scored higher purely because more pop songs existed with matching energy levels.
 
@@ -96,12 +98,9 @@ How you checked whether the recommender behaved as expected.
 
 Ideas for how you would improve the model next.  
 
-Prompts:  
-
-- Additional features or preferences  
-- Better ways to explain recommendations  
-- Improving diversity among the top results  
-- Handling more complex user tastes  
+- Additional features or preferences, like including valence and danceability to make song scoring even more tailored to a user, especially if more songs are added to the database.
+- Fuzzy matching so a user doesn't have to guess if their mood or genre is in the database.
+- Improving diversity among the top results, like incorporating songs with different artists.
 
 ---
 
@@ -109,8 +108,14 @@ Prompts:
 
 A few sentences about your experience.  
 
-Prompts:  
-
-- What you learned about recommender systems  
-- Something unexpected or interesting you discovered  
-- How this changed the way you think about music recommendation apps  
+- What you learned about recommender systems: 
+    - Even a simple weighted sum can produce surprisingly sensible results, but the weight distribution can get easily tricked by a contradiction in a user profile (like calm mood but high energy preference).
+- Something unexpected or interesting you discovered: 
+    - A single genre match can completely override continuous feature alignment, meaning a user can consistently get low-energy songs when they explicitly asked for high energy.
+- How this changed the way you think about music recommendation apps: 
+    - I now notice that real apps likely use a scoring function on the backend as well, and are collecting information when I user their app in terms of usual song mood and what/when I skip.   
+- Biggest learning moment: 
+- How AI tools helped me and when I needed to double-check:
+    - AI tools helped me implement the functions in recommender.py, adding data to the .csv, and build sample profiles. I needed to double check if what the functions were doing with scoring matched with what I designed in the README. I also needed to check if the user profiles had attributes that matched the README
+- What I would try next:
+    - I would like to try adding fuzzy matching because it seems very important for users to actually use the recommender. 

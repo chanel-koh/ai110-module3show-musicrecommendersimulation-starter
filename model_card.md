@@ -63,12 +63,14 @@ Prompts:
 
 Where the system struggles or behaves unfairly. 
 
-Prompts:  
-
 - Features it does not consider  
+    - valence, danceability, and the likes_acoustic boolean are collected but never used in scoring. Artist diversity or listening history are also not considered.
 - Genres or moods that are underrepresented  
+    - Pop and lofi dominate the dataset, while moods like "calm" and "energetic" dont't exist in the dataset, zeroing out 0.30 of the score for users who have these moods as their preference.
 - Cases where the system overfits to one preference  
+    - Gengre and mood together account for 0.65 of the total score, so a genre+mood match will almost always outrank a song that fits perfectly on every continuous feature but misses those two labels.
 - Ways the scoring might unintentionally favor some users  
+    - Users whose preferences match the catalog's exact label vocabulary get full credit on the two heaviest features, while users with genres or moods not in the dataset are permanently penalized with no fallback or warning.
 
 ---
 
@@ -76,14 +78,17 @@ Prompts:
 
 How you checked whether the recommender behaved as expected. 
 
-Prompts:  
+- Which user profiles you tested:
+    - **Indie Pop Fan**: upbeat indie pop listener who prefers moderate energy (0.75), 120 BPM tempo, a "happy" mood, and slight acoustic warmth (acousticness 0.30).
+    - **Folk Listener** (edge case): laid-back acoustic folk listener who paradoxically wants very high energy (0.90) despite a "calm" mood preference and slow tempo (85 BPM), with strong acoustic preference (acousticness 0.80).
+    - **Pop Fan**: high-energy pop fan seeking fast, danceable tracks (0.90 energy, 140 BPM, "energetic" mood) with minimal acousticness (0.10).
 
-- Which user profiles you tested  
 - What you looked for in the recommendations  
+    - I checked whether the top-ranked songs actually matched the spirit of each profile — for example, whether the Indie Pop Fan got upbeat indie songs and whether the Pop Fan got high-energy tracks — and whether the score breakdown in the "Why" column explained the ranking in a way that made intuitive sense.
 - What surprised you  
+    - The Folk Listener's top recommendation ("Golden Hour Letters") surprised me: despite the user wanting very high energy (0.90), the only folk song in the catalog has energy 0.46, so the genre match forced a low-energy song to the top — showing that the genre weight can override continuous feature alignment entirely.
 - Any simple tests or comparisons you ran  
-
-No need for numeric metrics unless you created some.
+    - I compared the Folk Listener and Pop Fan side-by-side since both have moods not in the catalog; this confirmed that the missing mood label costs exactly 0.30 points per song regardless of how well everything else matches, and the Pop Fan still scored higher purely because more pop songs existed with matching energy levels.
 
 ---
 

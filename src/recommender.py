@@ -108,14 +108,44 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
 
     return round(score, 4), reasons
 
-def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, List[str]]]:
+def recommend_songs(
+    user_prefs: Dict,
+    songs: List[Dict],
+    k: int = 5,
+    max_per_artist: int = 2,
+    max_per_genre: int = 2,
+) -> List[Tuple[Dict, float, List[str]]]:
     """
     Functional implementation of the recommendation logic.
     Required by src/main.py
+
+    Applies a diversity penalty so that at most `max_per_artist` songs from
+    the same artist and at most `max_per_genre` songs from the same genre
+    appear in the top-k results.  Songs are still ranked by score; lower-ranked
+    songs from under-represented artists/genres fill the remaining slots.
     """
     scored = []
     for song in songs:
         score, reasons = score_song(user_prefs, song)
         scored.append((song, score, reasons))
 
-    return sorted(scored, key=lambda x: x[1], reverse=True)[:k]
+    scored.sort(key=lambda x: x[1], reverse=True)
+
+    results: List[Tuple[Dict, float, List[str]]] = []
+    artist_counts: Dict[str, int] = {}
+    genre_counts: Dict[str, int] = {}
+
+    for song, score, reasons in scored:
+        if len(results) == k:
+            break
+        artist = song.get("artist", "")
+        genre = song.get("genre", "")
+        if artist_counts.get(artist, 0) >= max_per_artist:
+            continue
+        if genre_counts.get(genre, 0) >= max_per_genre:
+            continue
+        artist_counts[artist] = artist_counts.get(artist, 0) + 1
+        genre_counts[genre] = genre_counts.get(genre, 0) + 1
+        results.append((song, score, reasons))
+
+    return results

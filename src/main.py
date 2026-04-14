@@ -9,11 +9,12 @@ You will implement the functions in recommender.py:
 - recommend_songs
 """
 
+from tabulate import tabulate
 from src.recommender import load_songs, recommend_songs
 
 
 def main() -> None:
-    songs = load_songs("data/songs.csv") 
+    songs = load_songs("data/songs.csv")
 
     # Taste profile: upbeat indie pop fan who likes moderate energy and some acoustic warmth
     user_prefs = {
@@ -25,7 +26,7 @@ def main() -> None:
         "acousticness": 0.30,
     }
 
-    # Taste profile: laid-back acoustic folk listener who prefers calm, high-energy songs 
+    # Taste profile: laid-back acoustic folk listener who prefers calm, high-energy songs
     # Edge-case profile: calm mood but high energy preference
     user_prefs_2 = {
         "genre": "folk",
@@ -46,8 +47,6 @@ def main() -> None:
         "acousticness": 0.10,
     }
 
-    width = 52
-
     for label, prefs in [
         ("Indie Pop Fan", user_prefs),
         ("Folk Listener", user_prefs_2),
@@ -55,19 +54,20 @@ def main() -> None:
     ]:
         recommendations = recommend_songs(prefs, songs, k=5)
 
-        print(f"\n{'Top Recommendations for: ' + label:^{width}}")
-        print("=" * width)
-
+        rows = []
         for rank, (song, score, reasons) in enumerate(recommendations, start=1):
-            print(f"\n  #{rank}  {song['title']}")
-            print(f"       Artist : {song['artist']}")
-            print(f"       Score  : {score:.2f}")
-            print(f"       Why    :")
-            for reason in reasons:
-                print(f"                - {reason}")
+            reasons_str = "\n".join(f"  - {r}" for r in reasons)
+            rows.append([rank, song["title"], song["artist"], f"{score:.2f}", reasons_str])
 
-        print("\n" + "=" * width)
+        headers = ["#", "Title", "Artist", "Score", "Why"]
+        table = tabulate(rows, headers=headers, tablefmt="grid")
 
+        title_line = f"  Top Recommendations for: {label}"
+        width = max(len(title_line), len(table.splitlines()[0]))
+        print(f"\n{'=' * width}")
+        print(title_line)
+        print(f"{'=' * width}")
+        print(table)
 
 if __name__ == "__main__":
     main()
